@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture Analysis</title>
+    <style>
+        .camera-box {
+            position: fixed;
+            /* Keep it fixed in the viewport */
+            top: 30%;
+            left: 45%;
+            transform: translate(-50%, -50%);
+            /* Center it perfectly */
+            /* Optional: Add some styling */
+            width: 400px;
+            /* Adjust width as needed */
+            height: 300px;
+            /* Adjust height as needed */
+            border: 2px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            margin-left: 700px;
+            margin-top: 70px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Hand Gesture Analysis</h2>
+    <div class="camera-box">
+        <video id="videoElement" autoplay></video>
+        <button id="captureButton">Capture</button>
+        <h4>The displayed hand gesture is :</h4>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const video = document.getElementById('videoElement');
+            const captureButton = document.getElementById('captureButton');
+
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+                    })
+                    .catch(function (error) {
+                        console.error('Error accessing camera:', error);
+                    });
+            }
+
+            captureButton.addEventListener('click', function () {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0);
+
+                const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+                storeImage(dataURL);
+            });
+
+            function storeImage(imageData) {
+                // Option 1: Download image directly
+                const link = document.createElement('a');
+                link.download = 'captured_image.jpeg';
+                link.href = imageData;
+                link.click();
+
+                // Option 2: Store in local storage (temporary)
+                // localStorage.setItem('capturedImage', imageData);
+            }
+        });
+    </script>
+</body>
+
+</html>

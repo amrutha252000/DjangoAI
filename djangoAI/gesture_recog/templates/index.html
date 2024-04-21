@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hand Gesture Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         .camera-box {
             position: fixed;
@@ -41,6 +42,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             const video = document.getElementById('videoElement');
             const captureButton = document.getElementById('captureButton');
+            const predictionElement = document.getElementById('prediction');
 
             if (navigator.mediaDevices.getUserMedia) {
                 navigator.mediaDevices.getUserMedia({ video: true })
@@ -59,20 +61,19 @@
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0);
 
-                const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-                storeImage(dataURL);
+                const imageData = canvas.toDataURL('image/jpeg');
+                axios.post('http://localhost:8000/get_prediction/', {
+                    image_data: imageData
+                },{ headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
+                .then(response => {
+                    console.log("Image sent successfully", response);
+                })
+                .catch(error => {
+                    console.error("Error sending image:", error);
+                });
             });
 
-            function storeImage(imageData) {
-                // Option 1: Download image directly
-                const link = document.createElement('a');
-                link.download = 'captured_image.jpeg';
-                link.href = imageData;
-                link.click();
-
-                // Option 2: Store in local storage (temporary)
-                // localStorage.setItem('capturedImage', imageData);
-            }
+           
         });
     </script>
 </body>

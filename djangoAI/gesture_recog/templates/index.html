@@ -35,7 +35,7 @@
     <div class="camera-box">
         <video id="videoElement" autoplay></video>
         <button id="captureButton">Capture</button>
-        <h4>The displayed hand gesture is :</h4>
+        <h4>The displayed hand gesture is :</h4><h3 id="resp"></h3>
     </div>
 
     <script>
@@ -60,6 +60,7 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0);
+                document.getElementById("resp").innerHTML = "Loading......";
 
                 const imageData = canvas.toDataURL('image/jpeg');
                 axios.post('http://localhost:8000/get_prediction/', {
@@ -67,6 +68,7 @@
                 },{ headers: { 'X-CSRFToken': '{{ csrf_token }}' } })
                 .then(response => {
                     console.log("Image sent successfully", response);
+                    document.getElementById("resp").innerHTML = response.data.resp;
                 })
                 .catch(error => {
                     console.error("Error sending image:", error);

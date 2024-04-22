@@ -12,6 +12,7 @@ from django.http import HttpResponse
 import tensorflow as tf
 from django.views.decorators.csrf import csrf_exempt
 
+resp_gesture = ['call', 'fingers_crossed','okay','paper','peace','rock','rock_on','scissor','thumbs','up']
 
 def index(request):
     return render(request, 'index.html')
@@ -19,7 +20,7 @@ def index(request):
 @csrf_exempt
 def get_prediction(request):
     print("hi")
-    model = tf.keras.models.load_model('gesture_recog_vgg.keras')
+    model = tf.keras.models.load_model('gesture_recog_vgg_new.keras')
     model.summary()
     if request.method == 'POST':
         print(os.getcwd())
@@ -36,10 +37,11 @@ def get_prediction(request):
         # ... Your image processing with the np_array ...
         # if len(np_array.shape) == 3:  # Check if already grayscale
         #     np_array = cv2.cvtColor(np_array, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
-        np_array = np.array([cv2.resize(np_array, (224, 224), interpolation=cv2.INTER_AREA)])
+        np_array = np.array([cv2.resize(np_array, (200, 200), interpolation=cv2.INTER_AREA)])
         print(np_array.shape)
-        resp = model.predict(np_array)[0].tolist()
-        print(resp)
-        return JsonResponse({'resp': resp}) 
+        resp = np.argmax(model.predict(np_array)[0])
+
+        print(resp_gesture[resp])
+        return JsonResponse({'resp': resp_gesture[resp]}) 
     else:
         return JsonResponse({'error': 'Invalid request method'})
